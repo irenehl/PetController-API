@@ -18,12 +18,34 @@ var VaccineController = {
         }
     },
 
-    login: async (req, res) => {
+    deleteVacc: async (req, res) => {
         try {
             var ret = await Vaccine.findOneAndDelete({ _id: req.body._id })
-            return res.status().json({ _obj : ret })
+            return res.status(200).json({ _obj : ret })
         }
         catch(error) {
+            return res.status(400).json(err)
+        }
+    },
+
+    getAll: async (req, res) => {
+        try {
+            const { page = 1, limit = 10 } = req.query
+
+            const vaccines = await Vaccines.find()
+                .limit(limit * 1)
+                .skip((page - 1) * limit)
+                .exec()
+
+            const cout = await Vaccine.countDocuments()
+
+            return res.status(200).json({
+                pages: Math.ceil(count / limit),
+                current: page,
+                vaccines
+            })
+        }
+        catch(err) {
             return res.status(400).json(err)
         }
     }
