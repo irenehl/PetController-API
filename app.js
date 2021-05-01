@@ -3,9 +3,11 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mongoose = require('mongoose')
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+// Router importing
+var petOwnerRouter = require('./routes/PetOwnerRouter');
+var vaccineRouter = require('./routes/VaccineRouter');
 
 var app = express();
 
@@ -19,8 +21,23 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+mongoose.connect(process.env.MONGO_URI, {
+  useCreateIndex: true,
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false
+})
+  .then(() => {
+      console.log("Connected to DB");
+  })
+  .catch((err) => {
+      debug(err);
+      process.exit(1);
+  });
+
+// Using routes
+app.use('/petowner', petOwnerRouter);
+app.use('/vaccine', vaccineRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
